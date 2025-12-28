@@ -477,11 +477,11 @@ spawn(function()
             if currentTarget then
                 local nape = currentTarget:FindFirstChild("Nape")
                 if nape then
-                    status.Text = "Farmeando → " .. currentTarget.Name
+                    status.Text = "Farming →" .. currentTarget.Name
                     tpTo(nape)
                 end
             else
-                status.Text = "Todos muertos | Esperando nuevos..."
+                status.Text = "All dead | Waiting for new ones..."
                 disableAntiFall()
             end
         end
@@ -513,7 +513,7 @@ autoBtn.Activated:Connect(function()
         enableImmortal()
         startZeroCooldown()
         autoKey1 = true
-        status.Text = "AUTO FARM ENCENDIDO - TP rápido + corte automático"
+        status.Text = "AUTO FARM ON - Fast TP + Automatic Cut-Off"
         currentTarget = nil
         -- NUEVO: ELIMINAR MANOS DE TODOS LOS TITANES EXISTENTES AL ACTIVAR
         for _, titan in ipairs(titansFolder:GetChildren()) do
@@ -536,7 +536,7 @@ autoBtn.Activated:Connect(function()
             end
         end
     else
-        status.Text = "Auto Farm apagado"
+        status.Text = "Auto Farm OFF"
         currentTarget = nil
         disableAntiFall()
         stopAutoAttack()
@@ -569,13 +569,13 @@ end)
 print("AUTO FARM AOTLB v1 by LUXURY CHEATS - CARGADO Y ROMPIENDO TODO")
 
     else
-        box.PlaceholderText = "Key incorrecta"
+        box.PlaceholderText = "Incorrect Key"
         box.Text = ""
     end
 end)
 
 while true do task.wait() end  -- bloquea hasta key correcta
 
-
+end
 
 
