@@ -1,6 +1,16 @@
 -- KEY SYSTEM Luxury
 local CorrectKey = "LUXURY-AOT:LB"  -- la misma que pusiste en la descripción
 
+-- Persistencia: guarda si ya validó y cuándo
+getgenv().KeyValidated = getgenv().KeyValidated or false
+getgenv().LastValidatedTime = getgenv().LastValidatedTime or 0
+
+-- Si ya validó y volvió en menos de 5 minutos (300 segundos)
+if getgenv().KeyValidated and (os.time() - getgenv().LastValidatedTime < 300) then
+    print("Bienvenido de nuevo! Key válida - Auto Farm cargado automáticamente")
+    -- SALTA EL KEY SYSTEM Y VA DIRECTO AL SCRIPT
+else
+
 local sg = Instance.new("ScreenGui", game.CoreGui)
 local frame = Instance.new("Frame", sg)
 frame.Size = UDim2.new(0,400,0,200)
@@ -27,18 +37,30 @@ Instance.new("UICorner", box)
 local btn = Instance.new("TextButton", frame)
 btn.Size = UDim2.new(0.8,0,0,50)
 btn.Position = UDim2.new(0.1,0,0.7,0)
-btn.Text = "VERIFICAR"
+btn.Text = "VERIFY KEY"
 btn.BackgroundColor3 = Color3.fromRGB(40,200,40)
 btn.TextColor3 = Color3.new(1,1,1)
 btn.TextScaled = true
 btn.Font = Enum.Font.GothamBlack
+btn.Visible = false
 Instance.new("UICorner", btn)
+
+-- Mensaje de status (inicialmente oculto)
+local statusLabel = Instance.new("TextLabel", frame)
+statusLabel.Size = UDim2.new(0.9, 0, 0, 40)
+statusLabel.Position = UDim2.new(0.05, 0, 0.16, 0)
+statusLabel.Text = ""
+statusLabel.TextColor3 = Color3.fromRGB(255, 255, 120)
+statusLabel.TextScaled = true
+statusLabel.BackgroundTransparency = 1
+statusLabel.Font = Enum.Font.GothamBlack
+statusLabel.Visible = true
 
 -- BOTÓN COPIAR LINK (agregalo al final de tu GUI o key system)
 local CopyLinkButton = Instance.new("TextButton", frame)  -- "frame" es tu Frame principal
-CopyLinkButton.Size = UDim2.new(1, -40, 0, 50)
-CopyLinkButton.Position = UDim2.new(0, 20, 1, -120)  -- arriba del status
-CopyLinkButton.Text = "COPIAR LINK PARA COMPARTIR Y GANAR MÁS"
+CopyLinkButton.Size = UDim2.new(0.8,0,0,50)
+CopyLinkButton.Position = UDim2.new(0.1,0,0.7,0)  -- arriba del status
+CopyLinkButton.Text = "KEY LINK!"
 CopyLinkButton.TextColor3 = Color3.new(1,1,1)
 CopyLinkButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
 CopyLinkButton.Font = Enum.Font.GothamBold
@@ -51,13 +73,18 @@ CopyLinkButton.MouseButton1Click:Connect(function()
     setclipboard(TuLinkWorkInk)
     CopyLinkButton.Text = "¡COPIADO!"
     CopyLinkButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-    task.wait(2)
-    CopyLinkButton.Text = "KEY LINK!"
-    CopyLinkButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+    statusLabel.Text = "PEGA EL LINK COPIADO EN TU NAVEGADOR Y COMPLETA WORK.INK PARA OBTENER LA KEY"
+    task.wait(12)
+    CopyLinkButton.Visible = false
+    btn.Visible = true
+
+    
 end)
 
 btn.MouseButton1Click:Connect(function()
     if box.Text == CorrectKey then
+        getgenv().KeyValidated = true
+            getgenv().LastValidatedTime = os.time()  -- Guarda el momento de validación
         sg:Destroy()
         -- AQUÍ CONTINÚA TU SCRIPT NORMAL
         -- AUTO FARM AOTLB v5 by Fenix Cheats - CARGADO Y ROMPIENDO TODO
@@ -130,6 +157,23 @@ screenGui.Name = "AutoFarmAOTLBv1"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
+local UserInputService = game:GetService("UserInputService")
+local guiVisible = true  -- empieza visible
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.Insert then
+        guiVisible = not guiVisible
+        screenGui.Enabled = guiVisible  -- screenGui es tu ScreenGui principal del auto farm
+        
+        if guiVisible then
+            status.Text = "GUI ACTIVADA - Presiona INSERT para ocultar"
+        else
+            status.Text = "GUI OCULTA - Presiona INSERT para mostrar"
+        end
+    end
+end)
+
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 300, 0, 270) -- +30 píxeles para el texto nuevo
 frame.Position = UDim2.new(0, 20, 0, 20)
@@ -174,10 +218,12 @@ Instance.new("UICorner", autoBtn).CornerRadius = UDim.new(0,12)
 local status = Instance.new("TextLabel", frame)
 status.Size = UDim2.new(1,-40,0,50)
 status.Position = UDim2.new(0,20,1,-60)
-status.Text = "Cargando Titans..."
+status.Text = "Success"
 status.TextColor3 = Color3.fromRGB(200,200,200)
 status.TextScaled = true
 status.BackgroundTransparency = 1
+
+
 
 -- DRAGGABLE PERFECTO (igual)
 local dragging = false
@@ -209,9 +255,11 @@ local autoKey1 = false
 local key1Delay = 0.10 -- entre más bajo = más rápido (0.02–0.05 recomendado)
 
 
+task.wait(5)
+status.Text = "Loading...."
 local titansFolder = Workspace:WaitForChild("Titans", 10)
-if not titansFolder then status.Text="Carpeta Titans no encontrada"; return end
-status.Text = "Titans OK | Listo para farm"
+if not titansFolder then status.Text= "[-] UNDETECTED TITANS"; return end
+status.Text = "[+] TITANS DETECTED | AUTO FARM READY"
 
 local function isAlive(model)
     local main = model:FindFirstChild("Main")
@@ -492,7 +540,6 @@ autoBtn.Activated:Connect(function()
         currentTarget = nil
         disableAntiFall()
         stopAutoAttack()
-        disableImmortal()
         autoKey1 = false -- ❌ DESACTIVA SPAM
         
     end
