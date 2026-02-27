@@ -21,7 +21,7 @@ if validationMarker.Value then
 else
     -- === CONFIGURACIÓN ===
     -- Reemplaza con tu link de Work.ink (el que creaste)
-    local WORKINK_LINK = "https://work.ink/mi-script-key"  -- ← CAMBIA ESTO
+    local WORKINK_LINK = "https://work.ink/2bOb/key-luxury-cheats-v1"  -- ← CAMBIA ESTO
 
     -- === FUNCIÓN PARA VALIDAR KEY CON WORK.INK ===
     local function validarKeyConWorkInk(keyIngresada)
@@ -555,4 +555,5 @@ titansFolder.ChildAdded:Connect(function(titan)
 end)
 
 print("AUTO FARM AOTLB v1 by LUXURY CHEATS - CARGADO Y ROMPIENDO TODO")
+
 
