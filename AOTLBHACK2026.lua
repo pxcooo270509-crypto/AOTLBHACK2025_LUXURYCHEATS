@@ -1,7 +1,5 @@
--- KEY SYSTEM LUXURY - Versión FINAL para Solara V3 (persistencia con ReplicatedStorage)
-local CorrectKey = "LUXURY-AOT:LB"
+-- KEY SYSTEM LUXURY - Versión con Work.ink (keys de un solo uso)
 
--- Marcador de validación en PlayerGui (sobrevive SIEMPRE al cambiar de misión)
 local function getValidationMarker()
     local player = game.Players.LocalPlayer
     local playerGui = player:WaitForChild("PlayerGui")
@@ -17,11 +15,42 @@ end
 
 local validationMarker = getValidationMarker()
 
--- Si ya está validada, saltamos todo el key system
+-- Si ya está validada en esta sesión, saltamos todo
 if validationMarker.Value then
     print("Key validada detectada (PlayerGui) - Auto Farm cargado automáticamente")
 else
-    -- === KEY SYSTEM COMPLETO ===
+    -- === CONFIGURACIÓN ===
+    -- Reemplaza con tu link de Work.ink (el que creaste)
+    local WORKINK_LINK = "https://work.ink/mi-script-key"  -- ← CAMBIA ESTO
+
+    -- === FUNCIÓN PARA VALIDAR KEY CON WORK.INK ===
+    local function validarKeyConWorkInk(keyIngresada)
+        local exito, resultado = pcall(function()
+            -- Usamos deleteToken=1 para que sea de un solo uso
+            local url = "https://work.ink/_api/v2/token/isValid/" .. keyIngresada .. "?deleteToken=1"
+            local respuesta = game:GetService("HttpService"):RequestAsync({
+                Url = url,
+                Method = "GET"
+            })
+            
+            if respuesta.Success then
+                -- Convertimos la respuesta JSON a tabla
+                local datos = game:GetService("HttpService"):JSONDecode(respuesta.Body)
+                -- Devolvemos si es válida y los datos completos
+                return datos.valid, datos
+            else
+                return false, nil
+            end
+        end)
+
+        if exito then
+            return resultado
+        else
+            return false, nil
+        end
+    end
+
+    -- === INTERFAZ GRÁFICA ===
     local sg = Instance.new("ScreenGui", game.CoreGui)
     local frame = Instance.new("Frame", sg)
     frame.Size = UDim2.new(0,400,0,200)
@@ -62,45 +91,69 @@ else
     btn.TextColor3 = Color3.new(1,1,1)
     btn.TextScaled = true
     btn.Font = Enum.Font.GothamBlack
-    btn.Visible = false
+    btn.Visible = false  -- Se hará visible después del botón de link
     Instance.new("UICorner", btn)
 
     local CopyLinkButton = Instance.new("TextButton", frame)
     CopyLinkButton.Size = UDim2.new(0.8,0,0,50)
     CopyLinkButton.Position = UDim2.new(0.1,0,0.7,0)
-    CopyLinkButton.Text = "KEY LINK!"
+    CopyLinkButton.Text = "🔑 OBTENER KEY"
     CopyLinkButton.TextColor3 = Color3.new(1,1,1)
     CopyLinkButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
     CopyLinkButton.Font = Enum.Font.GothamBold
     CopyLinkButton.TextScaled = true
     Instance.new("UICorner", CopyLinkButton).CornerRadius = UDim.new(0, 12)
 
-    local TuLinkWorkInk = "https://work.ink/2bOb/autofarm-inmortal-aotlastbreath-roblox-2026"
-
+    -- Botón para copiar el link de Work.ink
     CopyLinkButton.MouseButton1Click:Connect(function()
-        setclipboard(TuLinkWorkInk)
-        CopyLinkButton.Text = "¡COPIADO!"
+        setclipboard(WORKINK_LINK)
+        CopyLinkButton.Text = "✅ ¡COPIADO!"
         CopyLinkButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-        statusLabel.Text = "PEGA EL LINK COPIADO EN TU NAVEGADOR Y COMPLETA WORK.INK PARA OBTENER LA KEY"
-        task.wait(12)
+        statusLabel.Text = "Link copiado. Pégalo en tu navegador, completa los pasos y obtén tu key única."
+        task.wait(3)
+        CopyLinkButton.Text = "🔑 OBTENER KEY"
+        CopyLinkButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
         CopyLinkButton.Visible = false
-        btn.Visible = true
+        btn.Visible = true  -- Mostramos el botón de verificar
+        statusLabel.Text = "Pega la key que obtuviste y presiona VERIFY"
     end)
 
+    -- Botón para verificar la key (visible después de copiar el link)
     btn.MouseButton1Click:Connect(function()
-        if box.Text == CorrectKey then
+        local keyIngresada = box.Text
+        if keyIngresada == "" then
+            statusLabel.Text = "⚠️ Introduce la key que obtuviste"
+            return
+        end
+
+        statusLabel.Text = "⏳ Validando con Work.ink..."
+        
+        -- Llamamos a la función de validación
+        local valida, datos = validarKeyConWorkInk(keyIngresada)
+
+        if valida then
+            -- Key válida y de un solo uso (ya se borró con deleteToken=1)
             validationMarker.Value = true
             sg:Destroy()
-            print("Key correcta - Validación guardada permanentemente")
+            print("✅ Key válida - Acceso concedido (uso único)")
+            -- Aquí se cargará tu autofarm automáticamente
         else
-            box.PlaceholderText = "Incorrect Key"
+            -- Key inválida, ya usada o expirada
+            if datos and datos.info then
+                -- Si hay información adicional, podemos mostrar un mensaje más específico
+                statusLabel.Text = "❌ Key inválida o ya utilizada"
+            else
+                statusLabel.Text = "❌ Key incorrecta"
+            end
             box.Text = ""
+            box.PlaceholderText = "Intenta con otra key"
         end
     end)
 
     -- Espera hasta que valide
     repeat task.wait() until validationMarker.Value
 end
+
 
 -- ==== AUTOFARM (se carga siempre después de validar) ====
 local Players = game:GetService("Players")
@@ -502,3 +555,4 @@ titansFolder.ChildAdded:Connect(function(titan)
 end)
 
 print("AUTO FARM AOTLB v1 by LUXURY CHEATS - CARGADO Y ROMPIENDO TODO")
+
